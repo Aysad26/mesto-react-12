@@ -2,17 +2,6 @@
 @import url(./vendor/normalize.css);
 @import url(./blocks/root/root.css);
 @import url(./blocks/header/header.css);
-@import url(./blocks/header/__nav/header__nav.css);
-@import url(./blocks/header/__link/header__link.css);
-@import url(./blocks/header/__link/_menu/header__link_menu.css);
-@import url(./blocks/header/__email/header__email.css);
-@import url(./blocks/header/__email/_menu/header__email_menu.css);
-@import url(./blocks/header/__menu/header__menu.css);
-@import url(./blocks/header/__button/header__button.css);
-@import url(./blocks/header/__button/_open/header__button_open.css);
-@import url(./blocks/header/__button/_close/header__button_close.css);
-@import url(./blocks/header/_visible/header__logo_visible.css);
-@import url(./blocks/header/_visible/header__menu_visible.css);
 @import url(./blocks/logo/logo.css);
 @import url(./blocks/main/main.css);
 @import url(./blocks/profile/profile.css);

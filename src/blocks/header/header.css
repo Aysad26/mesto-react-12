@@ -1,33 +1,5 @@
-@import url(./__logo/header__logo.css);
-@import url(./__email/header__email.css);
-@import url(./__link/header__link.css);
-@import url(./__nav/header__nav.css);
-@import url(./__button/header__button.css);
-@import url(./__button/_close/header__button_close.css);
-@import url(./__button/_open/header__button_open.css);
-@import url(./__menu/header__menu.css);
-@import url(./_visible/header__menu_visible.css);
-@import url(./_visible/header__logo_visible.css);
-@import url(./__email/_menu/header__email_menu.css);
-@import url(./__link/_menu/header__link_menu.css);
-
 .header {
-    position: relative;
-    max-width: 882px;
-    display: flex;
-    margin: auto;
-    border-bottom: 1px solid rgba(84, 84, 84, 0.7);
-}
-
-@media screen and (max-width: 920px) {
-    .header {
-        margin-left: 0;
-        margin-right: 0;
-    }
-}
-
-@media screen and (max-width: 475px) {
-    .header {
-        margin: 0;
-    }
+  width: 100%;
+  margin: 0 auto 40px auto;
+  border-bottom: 1px solid rgba(84, 84, 84, 0.7);
 }
