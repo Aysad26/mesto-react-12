@@ -52,6 +52,7 @@
 @import url(./blocks/button/_type/button_type_edit.css);
 @import url(./blocks/button/_type/button_type_close.css);
 @import url(./blocks/button/_type/button_type_submit.css);
+@import url(./blocks/button/_theme/button_theme_dark.css);
 @import url(./blocks/button/_inactive/button_inactive.css);
 @import url(./blocks/footer/footer.css);
 @import url(./blocks/footer/__copyright/__copyright.css);
