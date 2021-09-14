@@ -40,8 +40,12 @@
 @import url(./blocks/form/__item-container/form__item-container.css);
 @import url(./blocks/form/__item/form__item.css);
 @import url(./blocks/form/__item/_type/form__item_type_error.css);
+@import url(./blocks/form/__item/_dark/form__item_dark.css);
 @import url(./blocks/form/__input-error/form__input-error.css);
 @import url(./blocks/form/__input-error/_active/form__input-error_active.css);
+@import url(./blocks/form-section/form-section.css);
+@import url(./blocks/form-section/__heading/form-section__heading.css);
+@import url(./blocks/form-section/__paragraph/form-section__paragraph.css);
 @import url(./blocks/button/button.css);
 @import url(./blocks/button/_type/button_type_add.css);
 @import url(./blocks/button/__add-icon/button__add-icon.css);

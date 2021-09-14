@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { Route, Switch, Redirect, useHistory } from 'react-router-dom';
 import api from '../utils/Api';
 import '../index.css';
 import '../App.css';
@@ -11,6 +12,10 @@ import EditProfilePopup from './EditProfilePopup';
 import EditAvatarPopup from './EditAvatarPopup';
 import AddPlacePopup from './AddPlacePopup';
 import DeleteSubmitPopup from './DeleteSubmitPopup';
+import Register from './Register';
+import Login from './Login';
+import * as auth from '../utils/auth';
+import ProtectedRoute from './ProtectedRoute';
 
 
 function App() {
@@ -43,6 +48,12 @@ function App() {
   const [isImagePopupOpen, setImagePopupOpen] = React.useState(false); 
 
   const [selectedCard, setSelectedCard] = React.useState({});
+
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  const [email, setEmail] = useState('');
+
+  const history = useHistory();
 
  
   function handleCardClick(dataCards) { 
@@ -154,29 +165,97 @@ function App() {
     })
    }
 
-  return (
-  <div className="root">
-    <CurrentUserContext.Provider value={currentUser}>
-        <Header />
-        <Main 
-          loader={userInfoGet}
-          onEditAvatar={handleEditAvatarClick}
-          onEditProfile={handleEditProfileClick}
-          onAddCard ={handleAddPlaceClick}
-          onCardClick={handleCardClick}
-          cards = {currentCards} 
-          onCardLike ={handleCardLike}
-          onCardDelete ={handleDeleteSubmitPopup}
-        />
-        <Footer />
-        <EditProfilePopup onUpdateUser={handleUpdateUser} isOpen={isEditProfilePopupOpen} onClose={closeAllPopups} />
-        <EditAvatarPopup onUpdateAvatar={handleUpdateAvatar} isOpen={isEditAvatarPopupOpen} onClose={closeAllPopups} />
-        <AddPlacePopup onAddPlace={handleAddPlaceSubmit} isOpen={isAddPlacePopupOpen} onClose={closeAllPopups}/>
-        <DeleteSubmitPopup card={deleteCard} isOpen={deleteSubmitPopup} onClose={closeAllPopups} onCardDelete={handleCardDelete}/>
-        <ImagePopup card={selectedCard} onClose={closeAllPopups} isOpen={isImagePopupOpen}/>
-      </CurrentUserContext.Provider>
-  </div>
-  );
-}
+   function handleRegisterSubmit(email, password) {
+    auth.register(email, password)
+      .then((data) => {
+        if (data) {
+          history.push('/sign-in');
+        }
+      })
+    }
 
-export default App;
+  function handleLoginSubmit(email, password) {
+    auth.authorize(email, password)
+      .then((data) => {
+        if (data.token) {
+          setEmail(email)
+          setLoggedIn(true);
+          localStorage.setItem('token', data.token)
+          history.push('/')
+        }
+      })
+      
+  }
+
+   function tokenCheck() {
+    const token = localStorage.getItem('token');
+    if (token) {
+      auth.checkToken(token)
+        .then((data) => {
+          setEmail(data.data.email)
+          setLoggedIn(true)
+          history.push('/')
+        })
+        .catch((err) => {
+          if (err === 401) {
+            return console.log('Токен не передан или передан не в том формате');
+          }
+        })
+    }
+  }
+
+  function onSignOut() {
+    localStorage.removeItem('token');
+    setLoggedIn(false)
+    history.push('/sign-in')
+  }
+
+   return (
+    <div className="root">
+      <CurrentUserContext.Provider value={currentUser}>
+        <div className="page">
+          <Header
+            email={email}
+            onClick={onSignOut}
+            loggedIn={loggedIn}
+          />
+          <Switch>
+            <ProtectedRoute exact path='/' loggedIn={loggedIn}>
+              <Main
+                loader={userInfoGet}
+                onEditAvatar={handleEditAvatarClick}
+                onEditProfile={handleEditProfileClick}
+                onAddCard ={handleAddPlaceClick}
+                onCardClick={handleCardClick}
+                cards = {currentCards} 
+                onCardLike ={handleCardLike}
+                onCardDelete ={handleDeleteSubmitPopup}
+              />
+              <Footer />
+            </ProtectedRoute>
+            <Route path="/sign-up">
+              <Register
+                onRegister={handleRegisterSubmit}
+              />
+            </Route>
+            <Route path="/sign-in">
+              <Login
+                onLogin={handleLoginSubmit}
+              />
+            </Route>
+            <Route>
+              {loggedIn ? <Redirect to="/" /> : <Redirect to="/sign-in" />}
+            </Route>
+          </Switch>
+          <EditProfilePopup onUpdateUser={handleUpdateUser} isOpen={isEditProfilePopupOpen} onClose={closeAllPopups} />
+          <EditAvatarPopup onUpdateAvatar={handleUpdateAvatar} isOpen={isEditAvatarPopupOpen} onClose={closeAllPopups} />
+          <AddPlacePopup onAddPlace={handleAddPlaceSubmit} isOpen={isAddPlacePopupOpen} onClose={closeAllPopups}/>
+          <DeleteSubmitPopup card={deleteCard} isOpen={deleteSubmitPopup} onClose={closeAllPopups} onCardDelete={handleCardDelete}/>
+          <ImagePopup card={selectedCard} onClose={closeAllPopups} isOpen={isImagePopupOpen}/>
+        </div>
+      </CurrentUserContext.Provider>
+    </div>
+    );
+  }
+  
+  export default App;
