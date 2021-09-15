@@ -32,8 +32,9 @@ function Register({ onRegister }) {
               type="email" 
               className="form__item form__item_dark form__item_type_email" 
               onChange={handleInputChange} 
-              name="email-input" 
+              name="email" 
               placeholder="Email" 
+              value={inputValue.email}
               autocomplete="off" 
               required 
             />
@@ -41,9 +42,10 @@ function Register({ onRegister }) {
               type="password" 
               className="form__item form__item_dark form__item_type_password"
               onChange={handleInputChange}  
-              name="password-input" 
+              name="password" 
               placeholder="Пароль" 
               autocomplete="off" 
+              value={inputValue.password}
               required 
             />
           </fieldset>

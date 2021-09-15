@@ -12,7 +12,7 @@ function InfoTooltip({ isOpen, onClose, isSuccess, message }) {
           onClick={onClose} 
         />
         <img className="popup__icon" src={isSuccess ? success : error} alt="информационная иконка" />
-        <p className="popup__heading popup__heading_message">{message.text}</p>
+        <p className="popup__heading popup__heading_message">{message}</p>
       </div>
       <div className="popup__overlay popup__overlay_edit" onClick={onClose} />
     </section>

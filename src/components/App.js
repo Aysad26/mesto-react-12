@@ -175,53 +175,70 @@ function App() {
     })
    }
 
-   // Проверить токен
-   React.useEffect(() => {
-    const jwt = localStorage.getItem('jwt');
-    if (jwt) {
-      auth.getContent(jwt)
-        .then((res) => {
-          setLoggedIn(true);
-          setEmail(res.data.email);
-          history.push('/');
-        })
-        .catch(err => console.log(err));
-    }
-  }, [history]);
-
-  // Регистрация
-  function handleRegister(password, email) {
-    auth.register(escape(password), email)
-      .then(() => {
-        setMessage({ iconPath: resolvePath, text: 'Вы успешно зарегистрировались!' });
-      })
-      .catch((err) => setMessage({ iconPath: rejectPath, text: err.message }));
-    setInfoTooltipOpen(true);
-  }
-
-  // Авторизация
-  function handleLogin(password, email) {
-    auth.authorize(escape(password), email)
+   function handleRegisterSubmit(email, password) {
+    auth.register(email, password)
       .then((data) => {
-        auth.getContent(data)
-          .then((res) => {
-            setEmail(res.data.email);
-          })
-          .catch(err => console.log(err));
-        setLoggedIn(true);
-        setMessage({ iconPath: resolvePath, text: 'Вы успешно вошли в приложение!' });
-        history.push('/');
+        if (data) {
+          history.push('/sign-in');
+          setInfoTooltipPopupOpen(true);
+          setIsSuccessful(true);
+          setMessage('Вы успешно зарегистрировались!');
+        }
       })
-      .catch((err) => setMessage({ iconPath: rejectPath, text: err.message }))
-    setInfoTooltipOpen(true);
+      .catch((err) => {
+        setMessage('Что-то пошло не так! Попробуйте ещё раз');
+        setInfoTooltipPopupOpen(true);
+        setIsSuccessful(false);
+        if (err === 400) {
+          return console.log('некорректно заполнено одно из полей');
+        }
+      })
   }
 
-  // Выход
-  function handleSignOut() {
-    setLoggedIn(false);
-    localStorage.removeItem('jwt');
-    setEmail('');
-    history.push('/sign-in');
+  function handleLoginSubmit(email, password) {
+    auth.authorize(email, password)
+      .then((data) => {
+        if (data.token) {
+          setEmail(email)
+          setLoggedIn(true);
+          localStorage.setItem('token', data.token)
+          history.push('/')
+        }
+      })
+      .catch((err) => {
+        setMessage('Что-то пошло не так! Попробуйте ещё раз');
+        setInfoTooltipPopupOpen(true);
+        setIsSuccessful(false);
+        if (err === 400) {
+          return console.log('не передано одно из полей');
+        }
+        if (err === 401) {
+          return console.log('пользователь с email не найден');
+        }
+      })
+  }
+
+  function tokenCheck() {
+    const token = localStorage.getItem('token');
+    if (token) {
+      auth.checkToken(token)
+        .then((data) => {
+          setEmail(data.data.email)
+          setLoggedIn(true)
+          history.push('/')
+        })
+        .catch((err) => {
+          if (err === 401) {
+            return console.log('Токен не передан или передан не в том формате');
+          }
+        })
+    }
+  }
+
+  function onSignOut() {
+    localStorage.removeItem('token');
+    setLoggedIn(false)
+    history.push('/sign-in')
   }
 
   React.useEffect(() => {
@@ -233,26 +250,13 @@ function App() {
       <CurrentUserContext.Provider value={currentUser}>
         <div className="page">
           <Header
-            emailUser={email} 
-            routePathName={ 'Выход' } 
-            routePath={ '/sign-in' } 
-            loggedIn={loggedIn} 
-            onSignOut={handleSignOut}
+            email={email}
+            onClick={onSignOut}
+            loggedIn={loggedIn}
           />
           <Switch>
-            <Route path="/sign-up"> {/* регистрация пользователя */}
-              <Header routePathName={ 'Войти' } routePath={ '/sign-in' } />
-              <Register onRegister={handleRegister} />
-            </Route>
-
-            <Route path="/sign-in"> {/* авторизация пользователя - вход */}
-              <Header routePathName={ 'Регистрация' } routePath={ '/sign-up' } />
-              <Login onLogin={handleLogin}/>
-            </Route>
-
-            <ProtectedRoute path="/" 
-                loggedIn={loggedIn} 
-                component={Main} 
+            <ProtectedRoute exact path='/' loggedIn={loggedIn}>
+              <Main
                 loader={userInfoGet}
                 onEditAvatar={handleEditAvatarClick}
                 onEditProfile={handleEditProfileClick}
@@ -260,22 +264,30 @@ function App() {
                 onCardClick={handleCardClick}
                 cards = {currentCards} 
                 onCardLike ={handleCardLike}
-                onCardDelete ={handleDeleteSubmitPopup} />
+                onCardDelete ={handleDeleteSubmitPopup}
+              />
+              <Footer />
+            </ProtectedRoute>
+            <Route path="/sign-up">
+              <Register
+                onRegister={handleRegisterSubmit}
+              />
+            </Route>
+            <Route path="/sign-in">
+              <Login
+                onLogin={handleLoginSubmit}
+              />
+            </Route>
+            <Route>
+              {loggedIn ? <Redirect to="/" /> : <Redirect to="/sign-in" />}
+            </Route>
           </Switch>
-
-          <Route>
-            {loggedIn === false ? <Redirect to='/sign-in' /> : <Redirect to='/' />}
-          </Route>
-
-          <Route path="*">
-            <Redirect to='/sign-in' />
-          </Route>
           <EditProfilePopup onUpdateUser={handleUpdateUser} isOpen={isEditProfilePopupOpen} onClose={closeAllPopups} />
           <EditAvatarPopup onUpdateAvatar={handleUpdateAvatar} isOpen={isEditAvatarPopupOpen} onClose={closeAllPopups} />
           <AddPlacePopup onAddPlace={handleAddPlaceSubmit} isOpen={isAddPlacePopupOpen} onClose={closeAllPopups}/>
           <DeleteSubmitPopup card={deleteCard} isOpen={deleteSubmitPopup} onClose={closeAllPopups} onCardDelete={handleCardDelete}/>
           <ImagePopup card={selectedCard} onClose={closeAllPopups} isOpen={isImagePopupOpen}/>
-          <IhfoTooltip onClose={closeAllPopups} isOpen={isInfoTooltipPopupOpen}  loggedIn={loggedIn} message={message}/>
+          <IhfoTooltip onClose={closeAllPopups} isOpen={isInfoTooltipPopupOpen}  message={message} isSuccess={isSuccessful} />
         </div>
       </CurrentUserContext.Provider>
     </div>

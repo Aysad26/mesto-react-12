@@ -34,7 +34,8 @@ function Login({ onLogin }) {
               type="email" 
               className="form__item form__item_dark form__item_type_email" 
               onChange={handleInputChange} 
-              name="email-input" 
+              name="email" 
+              value={inputValue.email}
               placeholder="Email" 
               autocomplete="off" 
               required 
@@ -43,7 +44,8 @@ function Login({ onLogin }) {
               type="password" 
               className="form__item form__item_dark form__item_type_password"
               onChange={handleInputChange}  
-              name="password-input" 
+              name="password" 
+              value={inputValue.password}
               placeholder="Пароль" 
               autocomplete="off" 
               required 

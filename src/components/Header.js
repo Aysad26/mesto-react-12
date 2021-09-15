@@ -1,26 +1,41 @@
 import React from 'react';
-import headerPath from '../images/logo.svg';
-import { Link } from 'react-router-dom';
+import { Route, Switch, Link } from 'react-router-dom';
+import '../index.css';
+import logo from '../images/logo.svg';
 
-function Header({routePathName, routePath, emailUser, loggedIn, onSignOut}) {
+function Header({ email, onClick }) {
+
+  const [isOpen, setIsOpen] = React.useState(true);
+  const [isClicked, setIsClicked] = React.useState(false);
+
+  const linkClassName = "menu__item";
 
   return (
-    loggedIn === true ? (
-      <header className="header">
-        <img className="logo" src={headerPath} alt="Логотип"/>
+    <>
+     <header className="header">
+       <img
+        className="logo"
+        src={logo}
+        alt="логотип проекта"
+      />
         <div className="menu">
-          <p className="menu__item">{emailUser}</p>
-          <button onClick={onSignOut} className="menu__item" href={routePath}>{routePathName}</button>
+          <Switch>
+            <Route path="/sign-in">
+              <Link to="/sign-up" className={linkClassName}>Регистрация</Link>
+            </Route>
+            <Route path="/sign-up">
+              <Link to="/sign-in" className={linkClassName}>Войти</Link>
+            </Route>
+            <Route path="/">
+              <nav className="menu">
+                <p className={linkClassName}>{email}</p>
+                <Link onClick={onClick} className={linkClassName}>Выйти</Link>
+              </nav>
+            </Route>
+          </Switch>
         </div>
       </header>
-    ) : (
-      <header className="header">
-        <img className="logo" src={headerPath} alt="Логотип"/>
-        <div className="menu">
-          <Link to={routePath} className="menu__item">{routePathName}</Link>
-        </div>
-      </header>
-    )
+    </>
   );
 }
 
