@@ -30,8 +30,24 @@ function Login({ onLogin }) {
         <h2 className="form-section__heading">Вход</h2>
         <form className="form" name="profile-form" onSubmit={handleSubmit}>
           <fieldset className="form__input-container">
-            <input type="email" className="form__item form__item_dark form__item_type_email" onChange={handleInputChange} name="email-input" placeholder="Email" required />
-            <input type="password" className="form__item form__item_dark form__item_type_password"onChange={handleInputChange}  name="password-input" placeholder="Пароль" required />
+            <input 
+              type="email" 
+              className="form__item form__item_dark form__item_type_email" 
+              onChange={handleInputChange} 
+              name="email-input" 
+              placeholder="Email" 
+              autocomplete="off" 
+              required 
+            />
+            <input 
+              type="password" 
+              className="form__item form__item_dark form__item_type_password"
+              onChange={handleInputChange}  
+              name="password-input" 
+              placeholder="Пароль" 
+              autocomplete="off" 
+              required 
+            />
           </fieldset>
           <button className="button button_type_submit button_theme_dark" type="submit">Войти</button>
         </form>

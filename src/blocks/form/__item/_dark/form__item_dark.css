@@ -9,9 +9,13 @@
   line-height: 17px;
   background-color: #ffffff00;
   margin-bottom: 30px;
-  
+  color: white;
 }
 
 .form__item_dark:last-of-type {
   margin-bottom: 173px;
+}
+
+.form__item_dark:focus {
+  outline: none;
 }

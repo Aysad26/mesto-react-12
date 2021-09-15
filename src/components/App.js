@@ -16,11 +16,13 @@ import Register from './Register';
 import Login from './Login';
 import * as auth from '../utils/auth';
 import ProtectedRoute from './ProtectedRoute';
+import IhfoTooltip from './InfoTooltip';
 
 
 function App() {
 
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = React.useState(false);
+  
   function handleEditAvatarClick (){
     setIsEditAvatarPopupOpen(true)
   }
@@ -32,6 +34,7 @@ function App() {
   }
 
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = React.useState(false);
+
   function handleAddPlaceClick (){
     setIsAddPlacePopupOpen(true)
   }
@@ -47,11 +50,17 @@ function App() {
 
   const [isImagePopupOpen, setImagePopupOpen] = React.useState(false); 
 
+  const [isInfoTooltipPopupOpen, setInfoTooltipPopupOpen] = useState(false);
+
   const [selectedCard, setSelectedCard] = React.useState({});
 
   const [loggedIn, setLoggedIn] = useState(false);
 
   const [email, setEmail] = useState('');
+
+  const [isSuccessful, setIsSuccessful] = useState(false);
+
+  const [message, setMessage] = useState('');
 
   const history = useHistory();
 
@@ -62,12 +71,13 @@ function App() {
   } 
 
  function closeAllPopups(){
-    setIsEditProfilePopupOpen (false)
-    setIsAddPlacePopupOpen(false)
-    setIsEditAvatarPopupOpen(false)
+    setIsEditProfilePopupOpen (false);
+    setIsAddPlacePopupOpen(false);
+    setIsEditAvatarPopupOpen(false);
     setImagePopupOpen(false);
-    setSelectedCard({})
-    setDeleteSubmitPopup(false)
+    setSelectedCard({});
+    setDeleteSubmitPopup(false);
+    setInfoTooltipPopupOpen(false);
   }
 
   React.useEffect(() => {
@@ -78,7 +88,7 @@ function App() {
       }
     };
 
-    if (isEditProfilePopupOpen === true || isEditAvatarPopupOpen === true || isAddPlacePopupOpen === true || isImagePopupOpen === true) {
+    if (isEditProfilePopupOpen === true || isEditAvatarPopupOpen === true || isAddPlacePopupOpen === true || isImagePopupOpen === true || isInfoTooltipPopupOpen === true) {
       window.addEventListener('keydown', handleEsc);
     };
 
@@ -86,7 +96,7 @@ function App() {
       window.removeEventListener('keydown', handleEsc);
     };
     
-  }, [isEditProfilePopupOpen, isEditAvatarPopupOpen, isAddPlacePopupOpen, isImagePopupOpen]);
+  }, [isEditProfilePopupOpen, isEditAvatarPopupOpen, isAddPlacePopupOpen, isImagePopupOpen, isInfoTooltipPopupOpen]);
 
   const [currentUser,setCurrentUser] = React.useState({});
 
@@ -170,9 +180,20 @@ function App() {
       .then((data) => {
         if (data) {
           history.push('/sign-in');
+          setInfoTooltipPopupOpen(true);
+          setIsSuccessful(true);
+          setMessage('Вы успешно зарегистрировались!');
         }
       })
-    }
+      .catch((err) => {
+        setMessage('Что-то пошло не так! Попробуйте ещё раз');
+        setInfoTooltipPopupOpen(true);
+        setIsSuccessful(false);
+        if (err === 400) {
+          return console.log('некорректно заполнено одно из полей');
+        }
+      })
+  }
 
   function handleLoginSubmit(email, password) {
     auth.authorize(email, password)
@@ -184,10 +205,20 @@ function App() {
           history.push('/')
         }
       })
-      
+      .catch((err) => {
+        setMessage('Что-то пошло не так! Попробуйте ещё раз');
+        setInfoTooltipPopupOpen(true);
+        setIsSuccessful(false);
+        if (err === 400) {
+          return console.log('не передано одно из полей');
+        }
+        if (err === 401) {
+          return console.log('пользователь с email не найден');
+        }
+      })
   }
 
-   function tokenCheck() {
+  function tokenCheck() {
     const token = localStorage.getItem('token');
     if (token) {
       auth.checkToken(token)
@@ -209,6 +240,10 @@ function App() {
     setLoggedIn(false)
     history.push('/sign-in')
   }
+
+  React.useEffect(() => {
+    tokenCheck();
+  }, []);
 
    return (
     <div className="root">
@@ -252,6 +287,7 @@ function App() {
           <AddPlacePopup onAddPlace={handleAddPlaceSubmit} isOpen={isAddPlacePopupOpen} onClose={closeAllPopups}/>
           <DeleteSubmitPopup card={deleteCard} isOpen={deleteSubmitPopup} onClose={closeAllPopups} onCardDelete={handleCardDelete}/>
           <ImagePopup card={selectedCard} onClose={closeAllPopups} isOpen={isImagePopupOpen}/>
+          <IhfoTooltip onClose={closeAllPopups} isOpen={isInfoTooltipPopupOpen}/>
         </div>
       </CurrentUserContext.Provider>
     </div>
